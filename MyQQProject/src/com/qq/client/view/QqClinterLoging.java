@@ -3,6 +3,7 @@ import javax.swing.*;
 
 import com.qq.client.model.ManageClientConServerThread;
 import com.qq.client.model.QqClientUser;
+import com.qq.client.msg.MsgAction;
 import com.qq.client.tools.ManageQqFriendList;
 import com.qq.common.Message;
 import com.qq.common.User;
@@ -108,6 +109,7 @@ public class QqClinterLoging extends JFrame implements ActionListener{
 				
 				//向服务器发送一个要求得到在线好友列表的信息包，
 				try{
+					
 					ObjectOutputStream oos=new ObjectOutputStream
 					(ManageClientConServerThread.getQqClientConServerThread(u.getUserId()).getS().getOutputStream());
 					//建立一个在线好友请求信息包,然后发送

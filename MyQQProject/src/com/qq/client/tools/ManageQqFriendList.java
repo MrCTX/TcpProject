@@ -10,7 +10,7 @@ import com.qq.client.view.QqMyFriends;
 
 public class ManageQqFriendList {
 	//用好友的ID号
-	private static HashMap hm=new HashMap<String ,QqMyFriends>();
+	public static HashMap hm=new HashMap<String ,QqMyFriends>();
 	//加入好友
 	public static void addManageQqFriendList(String qqid,QqMyFriends qqMyFriends){
 		hm.put(qqid, qqMyFriends);

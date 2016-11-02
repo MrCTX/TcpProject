@@ -6,20 +6,27 @@ package com.qq.client.view;
 import javax.swing.*;
 
 import com.qq.client.model.QqClientConServer;
+import com.qq.client.msg.MsgAction;
+import com.qq.client.tools.ManageQqChat;
 import com.qq.common.Message;
 import com.qq.common.MessageType;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.io.*;
+import java.util.ArrayList;
+import java.util.Date;
+
 import com.qq.client.model.ManageClientConServerThread;
-public class QqChat extends JFrame implements ActionListener{
+public class QqChat extends JFrame implements ActionListener,WindowListener{
 	JTextArea message;
 	JTextField jtf;
 	JButton send;
 	JPanel jp;
-	String myid,friendid;
+	public String myid,friendid;
 	public QqChat(String myid,String friendid){
 		this.myid=myid;
 		this.friendid=friendid;
@@ -39,6 +46,8 @@ public class QqChat extends JFrame implements ActionListener{
 		this.setSize(300,200);
 //		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);//系统退出
 		this.setVisible(true);
+		
+		
 	}
 	public static void main(String []args){
 		QqChat aqChat=new QqChat("","");
@@ -57,7 +66,8 @@ public class QqChat extends JFrame implements ActionListener{
 			ms.setSender(myid);
 			ms.setGetter(friendid);
 			ms.setCon(jtf.getText().toString());
-			ms.setDate(new java.util.Date().toString());//当前时间
+			Date date=new Date();
+			ms.setDate(date.getYear()+"."+date.getMonth()+"."+date.getDay()+"."+date.getHours()+"."+date.getMinutes()+"."+date.getSeconds());//当前时间
 			//发送到服务器中
 			try{
 				//从HASHMAP的线程管理中取出与好友连接的线程
@@ -70,19 +80,39 @@ public class QqChat extends JFrame implements ActionListener{
 			message.append(""+myid+"说："+jtf.getText()+"\r\n");
 		}
 	}
-//	读取网络上的信息的线程
-//	public void run() {
-//		ObjectInputStream ois=null;
-//		while(true){
-//			try{
-//				ois=new ObjectInputStream(QqClientConServer.s.getInputStream());
-//				Message ms=(Message)ois.readObject();
-//				//读取到的信息包,取出聊天信息
-//				String info=(""+ms.getSender()+"对"+ms.getGetter()+"说:"+ms.getCon()+"\r\n");
-//				//加入到聊天界面上
-//				message.append(info);
-//				
-//			}catch(Exception e){e.printStackTrace();}
-//		}
-//	}
+	@Override
+	public void windowOpened(WindowEvent e) {
+		
+	}
+	@Override
+	public void windowClosing(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void windowClosed(WindowEvent e) {
+		
+		ManageQqChat.rmManageQqChat(myid+" "+friendid);
+	}
+	@Override
+	public void windowIconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void windowDeiconified(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void windowActivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+	@Override
+	public void windowDeactivated(WindowEvent e) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

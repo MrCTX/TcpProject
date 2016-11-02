@@ -1,7 +1,12 @@
 package com.qq.client.model;
+import java.awt.Color;
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
 
+import javax.swing.JLabel;
+
+import com.qq.client.msg.MsgAction;
 import com.qq.client.tools.ManageQqChat;
 import com.qq.client.tools.ManageQqFriendList;
 import com.qq.client.view.QqChat;
@@ -14,6 +19,7 @@ import com.qq.common.*;
  */
 public class QqClientConServerThread extends Thread{
 	private Socket s=null;
+	public static QqMyFriends qqMyFriends=null;
 	public Socket getS() {
 		return s;
 	}
@@ -33,7 +39,6 @@ public class QqClientConServerThread extends Thread{
 				Message m=(Message)ois.readObject();
 				//读到的信息是来自全部的用户的信息包,要把每一个信息包与每一个用户的聊天界面对应并显示信息
 				
-				
 				//System.out.println("接收到从服务器传来的信息 :"+m.getSender()+"对"+m.getGetter()+"说"+m.getCon());
 				//普通信息包
 				if(m.getMesType().equals(MessageType.message_comm_mes)){
@@ -41,8 +46,19 @@ public class QqClientConServerThread extends Thread{
 					//首先要找出服务器中的信息包的哪一个好友发给用户的,再从聊天界面中取出该聊天界面把信息包加入到里面显示
 					//显示在我的聊天界面上的应该的好友对我说的话也就是我的ID+" "+好友的ID(Getter是我的ID,Sender是好友的ID)
 					QqChat qqChat=ManageQqChat.getManageQqChat(m.getGetter()+" "+m.getSender());
-					//在相应的QQCHAT中显示信息(传入一个MESSAGE并显示信息)SHOWMESSAGE方法
-					qqChat.showmessage(m);
+					
+					if(qqChat!=null){
+						//MsgAction.addmsg_msgfile(m);
+						//在相应的QQCHAT中显示信息(传入一个MESSAGE并显示信息)SHOWMESSAGE方法
+						MsgAction.addmsg_msgfile(m);
+						qqChat.showmessage(m);
+					}
+					else{
+						int sender_id=Integer.valueOf(m.getSender());
+						JLabel jLabel= ManageQqFriendList.getManageQqFriendList(m.getGetter()).hy[sender_id-1];
+						jLabel.setForeground(Color.GREEN);
+						MsgAction.addmsg_msgfile(m);
+					}
 				}
 				//返回的是在线好友的信息包,在这里应该调用更新好在线好友的方法
 				else if (m.getMesType().equals(MessageType.message_ret_onLineFriend)){

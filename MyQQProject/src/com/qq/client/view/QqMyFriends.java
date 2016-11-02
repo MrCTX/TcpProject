@@ -3,6 +3,11 @@ import javax.swing.*;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import com.qq.client.msg.MsgAction;
 import com.qq.client.tools.*;
 import com.qq.common.Message;
 /**
@@ -23,7 +28,7 @@ public class QqMyFriends extends JFrame implements ActionListener{
 	Container c=null;
 	String myid,friendid;
 	String ownerId;
-	JLabel[] hy;
+	public JLabel[] hy;
 	public QqMyFriends(String myid){
 		//第一个好友的Panel
 		jp1=new JPanel(new BorderLayout());
@@ -138,8 +143,23 @@ public class QqMyFriends extends JFrame implements ActionListener{
 		new QqMyFriends(args[0]);
 	}
 	
+	/**
+	 * 修改，将所有好友设为下线状态，用户本身不变
+	 */
+	public void initFrinder(){
+		for(int j=0;j<hy.length;j++){
+			if(hy[j].getText().equals(myid)){
+				
+			}
+			else
+				hy[j].setEnabled(false);
+		}
+	}
+	
 	//建立一个更新在线好友的方法 ,应该在管理客户线程的类中调用,当客户端收到服务器返回的在线好友信息包时调用
 	public void upDateFriend(Message m){
+		initFrinder();
+		
 		//把信息包的好友在线内容取出,分成字符串数组
 		String onlinefriend[]=m.getCon().split(" ");
 		for(int i=0;i<onlinefriend.length;i++){
@@ -175,6 +195,8 @@ public class QqMyFriends extends JFrame implements ActionListener{
 			// TODO Auto-generated method stub
 			if(e.getClickCount()==2){
 				friendid=((JLabel)e.getSource()).getText();
+				((JLabel)e.getSource()).setForeground(Color.black);
+				last_color=Color.black;
 				//System.out.println("DoubleClick");
 				//启动好友聊天界面
 				//好友不在线则不能和好友聊天
@@ -182,22 +204,47 @@ public class QqMyFriends extends JFrame implements ActionListener{
 					//不能和自己聊天
 					if(friendid.equals(myid)!=true){
 						QqChat qqChat=new QqChat(myid,friendid);
+						/*
+						 * 读取msg文件，看是否有预存消息
+						 */
+						ArrayList<String> msg_key=MsgAction.getMsgKey(myid, friendid);
+						if(msg_key!=null){
+							System.out.println("msg_key不为空...");
+							for(int i=0;i<msg_key.size();i++){
+								Message message=new Message();
+								String[] msgkey=msg_key.get(i).split("_");
+								System.out.println(msg_key.get(i));
+								message.setGetter(msgkey[1]);
+								message.setSender(msgkey[0]);
+								try {
+									message.setCon(MsgAction.getMsg(msg_key.get(i)));
+								} catch (FileNotFoundException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								} catch (IOException e1) {
+									// TODO Auto-generated catch block
+									e1.printStackTrace();
+								}
+								qqChat.showmessage(message);
+								
+								System.out.println("msg:"+message.getCon());
+							}
+						}
 						//把用户与好友聊天的界面加入到HASHMAP中
 						ManageQqChat.addManageQqChat(myid+" "+friendid, qqChat);
-		//				//启动好友信息包接收的RUN方法
-		//				Thread t=new Thread(qqChat);
-		//				t.start();
 					}
 				}
 			}
 		}
 
+		private Color last_color=null;
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			// TODO Auto-generated method stub
 			
 				JLabel jl=(JLabel)e.getSource();
-				jl.setForeground(Color.red);
+				last_color=jl.getForeground();
+				jl.setForeground(Color.PINK);
 			
 		}
 
@@ -205,7 +252,7 @@ public class QqMyFriends extends JFrame implements ActionListener{
 		public void mouseExited(MouseEvent e) {
 			// TODO Auto-generated method stub
 			JLabel jl=(JLabel)e.getSource();
-			jl.setForeground(Color.black);
+			jl.setForeground(last_color);
 		}
 
 		@Override
