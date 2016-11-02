@@ -20,4 +20,8 @@ public class ManageQqChat {
 	public static QqChat getManageQqChat(String loginandfriendID){
 		return (QqChat)hm.get(loginandfriendID);
 	}
+	
+	public static QqChat rmManageQqChat(String loginandfriendID){
+		return (QqChat)hm.remove(loginandfriendID);
+	}
 }
