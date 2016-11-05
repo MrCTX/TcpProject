@@ -39,17 +39,17 @@ public class QqServer {
 					ms.setMesType("1");//成功信息
 					oos.writeObject(ms);	//把信息包返回
 					//单开一个线程，让其与该客户端保持连接
-					serverConClientThread scct=new serverConClientThread(s);
+					serverConClientThread scct=new serverConClientThread(s,u.getUserId());
 					
 					//把建立的连接线程加入到HashMap向量中
 					ManageClientThread.addClientThread(u.getUserId(), scct);
 					//启动连接的线程
 					scct.start();
 					
-					//当有用户上线时就通知已在线的好友，我上线了，实际上是发一个好友在线的信息包
+					//当有用户上线时就通知已在线的好友，取得所有好友在线
 					//在好友的连接线程连接中进行通知，要取出每一个在线好友的线程，(把我的ID号传进去)
-					scct.notifyother(u.getUserId());
-					
+					String str = ManageClientThread.getOnLineFriends();
+					scct.notifyother(str);
 				}else{
 					//返回失败信息
 					ms.setMesType("2");

@@ -14,6 +14,7 @@ import com.qq.common.Message;
 
 public class serverConClientThread extends Thread{
 	Socket s;
+	String id ; 
 	public Socket getS() {
 		return s;
 	}
@@ -21,11 +22,13 @@ public class serverConClientThread extends Thread{
 		this.s = s;
 	}
 	//把该Socket的连接传入赋给S
-	public serverConClientThread(Socket s){
+	public serverConClientThread(Socket s,String id ){
 		//把服务器建立的连接赋给S
 		this.s=s;
+		this.id = id ;
 	}
-	//通知在线好友，我上线了的方法,
+	//通知在线好友，所有在线好友的方法,
+	@SuppressWarnings("rawtypes")
 	public void notifyother(String args){
 		HashMap hm=ManageClientThread.hm;
 		//取出在线好友的线程
@@ -35,7 +38,7 @@ public class serverConClientThread extends Thread{
 			String online=it.next().toString();
 			//建立信息包,信息包应该发到好友的客户端
 			Message m=new Message();
-			m.setCon(args);//我的ID号
+			m.setCon(args);//所有在线好友的id
 			m.setMesType(MessageType.message_ret_onLineFriend);
 			//取出好友的SOCKET，建立连接
 			try{
@@ -47,6 +50,8 @@ public class serverConClientThread extends Thread{
 			}catch(Exception ex){ex.printStackTrace();}
 		}
 	}
+	
+	@SuppressWarnings("rawtypes")
 	public void run(){
 	
 			//这里可以接收客户端的信息
@@ -88,6 +93,13 @@ public class serverConClientThread extends Thread{
 					}
 				}
 			}catch(Exception e){
+				//线程管理器中保存客户端线程的HashMap
+				HashMap hm = ManageClientThread.hm;
+				//将下线的线程从HashMap中去除
+				hm.remove(id);
+				//更新在线好友，然后将在线好友的标识发送给所有好友
+				String str = ManageClientThread.getOnLineFriends();
+				notifyother(str);
 				e.printStackTrace();
 			}
 	}
